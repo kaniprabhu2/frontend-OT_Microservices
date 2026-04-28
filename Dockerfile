@@ -1,9 +1,7 @@
-FROM node:18
+# Build stage
+FROM node:18 AS build
 
 WORKDIR /app
-
-# Fix OpenSSL + memory crash
-ENV NODE_OPTIONS="--openssl-legacy-provider --max-old-space-size=1024"
 
 COPY package*.json ./
 RUN npm install
@@ -11,9 +9,10 @@ RUN npm install
 COPY . .
 RUN npm run build
 
+# Production stage
 FROM nginx:alpine
 
-COPY --from=0 /app/build /usr/share/nginx/html
+COPY --from=build /app/build /usr/share/nginx/html
 
 EXPOSE 80
 
