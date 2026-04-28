@@ -1,18 +1,15 @@
-# Build stage
 FROM node:18 AS build
 
 WORKDIR /app
 
+ENV NODE_OPTIONS=--max-old-space-size=512
+
 COPY package*.json ./
 RUN npm install
-
-# Fix memory issue
-ENV NODE_OPTIONS="--max-old-space-size=512"
 
 COPY . .
 RUN npm run build
 
-# Production stage
 FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
