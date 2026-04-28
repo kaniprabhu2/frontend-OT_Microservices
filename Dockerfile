@@ -6,6 +6,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+# Fix memory issue
+ENV NODE_OPTIONS="--max-old-space-size=512"
+
 COPY . .
 RUN npm run build
 
