@@ -1,20 +1,19 @@
-FROM node:16.15.1
+# Build stage
+FROM node:18 AS build
 
-MAINTAINER Opstree Solutions
+WORKDIR /app
 
-COPY . /app
+COPY package*.json ./
+RUN npm install
 
-WORKDIR /app/
-
-RUN apt-get update -y && \
-    apt-get install git -y
-
-RUN npm install 
-
+COPY . .
 RUN npm run build
 
-RUN yarn global add serve
+# Serve using nginx
+FROM nginx:alpine
 
-EXPOSE 3000
+COPY --from=build /app/build /usr/share/nginx/html
 
-ENTRYPOINT ["serve", "-s", "build"]
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
